@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="manifest" href="./manifest.json">
+    <title>Pwa</title>
+  </head>
+  <body>
+    <button class="download_app">Download App</button>
+    <script>
+      if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker
+          .register("./sw.js")
+          .then((reg) => console.log("Success: ", reg.scope))
+          .catch((error) => console.log("Failure: ", error));
+      });
+    }
+    else{
+        console.warn("Service worker not working")
+    }
+
+
+    // install app
+    let download_app = Array.from(document.querySelectorAll('.download_app'));
+download_app.forEach((e)=>{
+ e.style.display = 'none'
+})
+
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt',(e)=>{
+  e.preventDefault();
+  deferredPrompt = e;
+  download_app.forEach((e)=>{
+    e.style.display = 'inline-block';
+    e.addEventListener('click',(e)=>{
+deferredPrompt.prompt();
+deferredPrompt.userChoice
+.then((choiceResult)=>{
+  if(choiceResult.outcome === "accepted"){
+    console.log("user accepted A2HS")
+  }else{ 
+    console.log('user dismissed')
+  }
+  deferredPrompt = null
+})
+    })
+   });
+
+});
+    </script>
+  </body>
+</html>
